@@ -1,0 +1,82 @@
+[
+{
+    "pk": 1,
+    "fields": {
+        "icon": "icons/snakes.png",
+        "name": "Micro-Organisms"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 2,
+    "fields": {
+        "icon": "icons/algae.png",
+        "name": "Aquatic Plants"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 3,
+    "fields": {
+        "icon": "icons/rice.png",
+        "name": "Land Plants"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 4,
+    "fields": {
+        "icon": "icons/lobster.png",
+        "name": "Aquatic Invertebrates"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 6,
+    "fields": {
+        "icon": "icons/ant.png",
+        "name": "Insects"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 7,
+    "fields": {
+        "icon": "icons/shark.png",
+        "name": "Fish"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 8,
+    "fields": {
+        "icon": "icons/birds.png",
+        "name": "Birds"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 9,
+    "fields": {
+        "icon": "icons/deer.png",
+        "name": "Mammals"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 10,
+    "fields": {
+        "icon": "icons/oyster.png",
+        "name": "Land Mollusks"
+    },
+    "model": "species.category"
+},
+{
+    "pk": 13,
+    "fields": {
+        "icon": "icons/alligator.png",
+        "name": "Reptiles and Amphibians"
+    },
+    "model": "species.category"
+}
+]

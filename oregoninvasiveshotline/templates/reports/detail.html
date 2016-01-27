@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+{% load permissions %}
+{% block title %}
+Report #{{ report.pk }} - {{ report }}
+{% endblock %}
+{% block content %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="report-heading clearfix">
+            <img src="{{ report.icon_url }}" title="{{ report.category.name }} - {{ report.species.severity }}" alt="{{ report.category.name }} - {{ report.species.severity }}" /> 
+            <h3>{{ report.species.name|default:report.reported_category }} <small>{% if report.species.scientific_name %}({{ report.species.scientific_name }}){% endif %}</small> on {{ report.created_on|date:"M j, Y" }}</h3>
+            {% if report.is_misidentified %}
+                <p class="misidentified">Originally reported as {{ report.reported_species }}</p>
+            {% endif %}
+        </div>
+
+        <p class="report-status-info">
+            {% if report.has_specimen %}
+                <em>Submitter has sample</em><br />
+            {% else %}
+                <em>Submitter does not have a specimen</em><br />
+            {% endif %}
+
+            {% if user|can_create_comment:report %}
+                <strong>Submitted by:</strong> {{ report.created_by.first_name }} {{ report.created_by.last_name }} ({{ report.created_by.email }}) {% if report.created_by.phone %}{{ report.created_by.phone }}{% endif %}<br />
+                {% if report.created_by.has_completed_ofpd %}
+                    <em title="Oregon Forest Pest Detector">OFPD trained</em><br />
+                {% endif %}
+            {% endif %}
+
+            {% if report.get_edrr_status_display %}
+                <strong title="Early Detection and Rapid Response">EDRR Status:</strong> {{ report.get_edrr_status_display }}
+                <br />
+            {% endif %}
+
+            {% if user.is_active %}
+                {% if report.is_public %}
+                    <span class="glyphicon glyphicon-eye-open" title="Public"></span>
+                {% endif %}
+                {% if report.actual_species %}
+                    <span class="glyphicon glyphicon-ok" title="Confirmed"></span>
+                {% endif %}
+                {% if report.is_archived %}
+                    <span class="glyphicon glyphicon-oil" title="Archived"></span>
+                {% endif %}
+            {% endif %}
+        </p>
+        <h4>Description of specimen</h4>
+        <blockquote>{{ report.description|default:"No description provided"|linebreaksbr }}</blockquote>
+
+        {% if images %}
+            <div class="galleria">
+                {% for image in images %}
+                    <img src="{{ image.image.url }}" alt="{{ image.name }}" />
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <hr />
+        <h4>Commentary</h4>
+        <div class="comment-list">
+            {% for comment in comments %}
+                <div id="comment-{{ comment.pk }}" class="comment">
+                    <img src="{{ comment.created_by.get_avatar_url }}" class="pull-left" width="64" height="64" />
+                    {{ comment.body|linebreaksbr }}
+                    <p class="text-right comment-meta">
+                        {% if user.is_active or user|can_create_comment:report or comment.created_by.is_active %}
+                            <cite>{{ comment.created_by }} {% if comment_form.visibility %}({{ comment.get_visibility_display.split.0|lower }}){% endif %}</cite>
+                        {% elif comment.created_by_id == report.created_by_id %}
+                            <cite>Reporter</cite>
+                        {% else %}
+                            <cite>{{ comment.created_by }}</cite>
+                        {% endif %}
+                        <br /> {{ comment.created_on }}
+                        {% if user|can_edit_comment:comment %}
+                            <a href="{% url 'comments-edit' comment.pk %}">Edit</a>
+                        {% endif %}
+                    </p>
+                </div>
+            {% empty %}
+                <em>None</em>
+            {% endfor %}
+        </div>
+
+        {% if user|can_create_comment:report %}
+            <p id="add-comment"><a href="#">Add a Comment</a></p>
+            {% include "comments/_edit.html" with form=comment_form formset=image_formset %}
+        {% endif %}
+    </div>
+
+    <div class="col-md-4 sidebar">
+        <div class="location sidebar-block">
+            <h4>Location</h4>
+            <div id="map-canvas" style="height:200px"></div>
+            {% if report.location %}
+                <blockquote>{{ report.location|linebreaksbr }}</blockquote>
+            {% endif %}
+        </div>
+
+        {% if report.claimed_by and report.claimed_by == user %}
+            <div class="report-management clearfix sidebar-block">
+                <h4>Report Management {% if report.claimed_by == user %}<small><a href="{% url 'reports-unclaim' report.pk %}">(unclaim)</a></small>{% endif %}</h4>
+                <ul class="nav nav-tabs" id="management-tabs">
+                    <li class="active"><a data-toggle="tab" href="#confirm"><span class="glyphicon glyphicon-grain"></span> Species</a></li>
+                    <li><a data-toggle="tab" href="#invite"><span class="glyphicon glyphicon-phone-alt"></span> Invite {% if invites %}<small>({{ invites|length }})</small>{% endif %}</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="confirm-form tab-pane active" id="confirm">
+                        <p>
+                            {% if report.actual_species %}
+                                <strong class="text-success">The species is confirmed</strong>
+                            {% else  %}
+                                <strong class="text-warning">The species is unconfirmed</strong>
+                            {% endif %}
+                        </p>
+                        <form method="post">
+                            {% csrf_token %}
+                            {% if management_form.errors %}
+                                <div class="alert alert-danger">
+                                    Please correct the errors below
+                                    {% if management_form.non_field_errors %}
+                                        {{ management_form.non_field_errors }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {{ management_form.edrr_status|bootstrap }}
+                            {{ management_form.category|bootstrap }}
+                            <div id="reported-species">
+                                {{ management_form.actual_species|bootstrap }}
+                                <p>&mdash; or &mdash; create a new species</p>
+                                <table>
+                                    <tr>
+                                        <td>{{ management_form.new_species|bootstrap }}</td>
+                                        <td>&nbsp;</td>
+                                        <td>{{ management_form.severity|bootstrap }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <hr />
+                            {{ management_form.is_public|bootstrap }}
+                            {{ management_form.is_archived|bootstrap }}
+                            <input type="hidden" name="submit_flag" value="{{ management_form.SUBMIT_FLAG }}" />
+                            <input type="submit" value="Submit" name="submit" class="btn btn-primary"/>
+                        </form>
+                    </div>
+                    <div class="public-form tab-pane" id="invite">
+                        <p>Invite an expert to review this report.
+                            {% if invites %}
+                                You have already invited: {{ invites|join:", " }}.
+                            {% endif %}
+                        </p>
+                        <form method="post">
+                            {% if invite_form.errors %}
+                                <div class="alert alert-danger">
+                                    Please correct the errors below
+                                    {% if invite_form.non_field_errors %}
+                                        {{ invite_form.non_field_errors }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {% csrf_token %}
+                            {{ invite_form|bootstrap }}
+                            <input type="hidden" name="submit_flag" value="{{ invite_form.SUBMIT_FLAG }}" />
+                            <input type="submit" value="Submit" name="submit" class="btn btn-primary"/>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% elif user|can_claim_report:report and not report.claimed_by %}
+            <div class="alert alert-warning text-center sidebar-block">
+                <form method="post" action="{% url 'reports-claim' report.pk %}" style="display:inline">
+                    {% csrf_token %}
+                    This report is unclaimed...
+                    <button class="btn btn-warning btn-xs" type="submit">Claim it!</button>
+                    <a href="{% url 'reports-delete' report.pk %}" class="btn btn-default btn-xs">Delete it</a>
+                </form>
+            </div>
+        {% elif report.claimed_by and report.claimed_by != user %}
+            <div class="credit clearfix sidebar-block">
+                <h4>Expert Reviewer</h4>
+                <img src="{{ report.claimed_by.get_avatar_url }}" class="pull-left" width="64" height="64" />
+                <p><strong><a href="{% url 'users-detail' report.claimed_by.pk %}">{{ report.claimed_by.get_proper_name }}</a></strong> <br />{{ report.claimed_by.affiliations|linebreaksbr }}</p>
+            </div>
+        {% endif %}
+
+        {% if report.claimed_by and user|can_claim_report:report and report.claimed_by != user %}
+            <div class="alert alert-warning text-center sidebar-block">
+                <form method="post" action="{% url 'reports-claim' report.pk %}" style="display:inline">
+                    {% csrf_token %}
+                    This report is claimed...
+                    <button class="btn btn-warning btn-xs" type="submit">steal it!</button>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if report.actual_species.remedy %}
+            <div class="clearfix sidebar-block">
+                <h4>Remedy</h4>
+                {{ report.actual_species.remedy|markdown }}
+            </div>
+        {% endif %}
+
+        {% if report.actual_species.resources %}
+            <div class="clearfix sidebar-block">
+                <h4>Resources</h4>
+                {{ report.actual_species.resources|markdown }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+
+    <script src="{{ GOOGLE.maps.url }}"></script>
+
+    <script>
+        var category_id_to_species_id = {{ category_id_to_species_id|safe }};
+    </script>
+
+    <script src="{% static 'js/species_selector.js' %}"></script>
+    <script src="{% static 'galleria/galleria-1.4.2.min.js' %}"></script>
+
+    <script>
+        if($('.galleria').length){
+            Galleria.loadTheme('{% static "galleria/themes/classic/galleria.classic.min.js" %}');
+            Galleria.run('.galleria', {
+                "lightbox": true
+            });
+        }
+
+        $('#add-comment a').click(function(e){
+            e.preventDefault();
+            $('#add-comment').css("visibility", "hidden");
+            $('#add-comment').css("display", "none").promise().done(function(){
+                $('#create-comment').slideDown();
+            });
+        });
+
+        $('#id_new_species').keydown(function(){
+            $('#id_reported_species').val("");
+        });
+
+        {% if comment_form.is_bound %}
+            $('#add-comment a').click()
+        {% endif %}
+        google.maps.event.addDomListener(window, 'load', function(){;
+            var mapOptions = getDefaultMapOptions();
+            mapOptions.center = {lat: {{ report.point.y }}, lng: {{ report.point.x }}}
+            var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+            var marker = new google.maps.Marker({
+                position: {
+                    lat: {{ report.point.y }}, lng: {{ report.point.x }}
+                },
+                map: map,
+                icon: generateIcon('{{ report.icon_url }}')
+            });
+        });
+    </script>
+{% endblock %}

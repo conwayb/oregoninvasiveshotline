@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Comment{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <style type="text/css">
+        #create-comment {
+            display:block;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% include 'comments/_edit.html' %}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'js/img.js' %}"></script>
+{% endblock %}

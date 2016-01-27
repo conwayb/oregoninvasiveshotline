@@ -1,55 +1,53 @@
-.PHONY: run install clean coverage reload
+package = oregoninvasiveshotline
+distribution = psu.oit.arc.$(package)
+egg_name = $(distribution)
+egg_info = $(egg_name).egg-info
+venv ?= .env
+venv_python ?= python3.3
+bin = $(venv)/bin
 
-PROJECT_NAME = hotline
-VENV_DIR ?= .env
-# centos puts pg_config in weird places. We run postgres 9.1 and 9.3 in prod and dev
-# respectively.
-PG_DIRS = /usr/pgsql-9.1/bin:/usr/pgsql-9.3/bin
+init: $(venv)
+	@$(bin)/pip install git+https://github.com/PSU-OIT-ARC/arctasks#egg=psu.oit.arc.tasks
+	@$(bin)/inv init
+	@$(bin)/inv coverage
+reinit: clean-venv clean-install init
 
-PYTHON = python3
-MANAGE = python manage.py
-HOST ?= 0.0.0.0
-PORT ?= 8000
+venv: $(venv)
+$(venv):
+	virtualenv -p $(venv_python) $(venv)
+clean-venv:
+	rm -rf $(venv)
 
-export PATH:=$(VENV_DIR)/bin:$(PATH):$(PG_DIRS)
-
-run:
-	$(MANAGE) runserver $(HOST):$(PORT)
-
-init:
-	rm -rf $(VENV_DIR)
-	@$(MAKE) $(VENV_DIR)
-	dropdb --if-exists $(PROJECT_NAME)
-	createdb $(PROJECT_NAME)
-	psql -c "CREATE EXTENSION postgis" $(PROJECT_NAME)
-	@$(MAKE) reload
-	$(MANAGE) loaddata dummy_user.json category.json severity.json species.json counties.json pages.json
+install: venv $(egg_info)
+reinstall: clean-install install
+$(egg_info):
+	$(venv)/bin/pip install -r requirements.txt
+clean-install:
+	rm -rf $(egg_info)
 
 clean:
-	find . -iname "*.pyc" -delete
-	find . -iname "*.pyo" -delete
-	find . -iname "__pycache__" -delete
+	@$(bin)/inv clean
+clean-all: clean-coverage clean-install clean-pyc clean-venv
+	rm -rf build dist
+clean-pyc:
+	find . -name __pycache__ -type d -print0 | xargs -0 rm -r
 
-coverage:
-	coverage run ./manage.py test --keepdb && coverage html && cd htmlcov && python -m http.server 9000
+test: install
+	@$(bin)/inv test
+coverage: install
+	$(bin)/inv coverage
+clean-coverage:
+	rm -f .coverage
 
-test:
-	LOCAL_SETTINGS_FILE="local.cfg#test" $(MANAGE) test --keepdb && flake8 && isort -rc --diff --check-only $(PROJECT_NAME)
+run:
+	@$(bin)/inv runserver
 
-reload:
-	$(MANAGE) migrate
-	$(MANAGE) collectstatic --noinput
-	$(MANAGE) rebuild_index --clopen --noinput
-	touch $(PROJECT_NAME)/wsgi.py
+to ?= stage
+deploy:
+	$(bin)/inv configure --env $(to) deploy
 
-stage:
-	git fetch arc
-	@git diff arc/master HEAD
-	@read -p "Are you sure? [y/n] " foo && [ $$foo = "y" ]
-	git push arc master
-	ssh -tt hrimfaxi.oit.pdx.edu "cd /vol/www/invasivespecieshotline/dev && sudo bash -c 'git fetch && git checkout $$(git rev-parse HEAD) && make reload'"
-
-$(VENV_DIR):
-	$(PYTHON) -m venv .env
-	curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python
-	pip install -r requirements.txt
+.DEFAUL_GOAL = run
+.PHONY = \
+    init reinit venv install reinstall test coverage \
+    clean-venv clean-install clean-coverage \
+    clean clean-all clean-pyc

@@ -1,0 +1,4 @@
+include README.md
+recursive-include oregoninvasiveshotline/static *
+recursive-include oregoninvasiveshotline/templates *
+recursive-include oregoninvasiveshotline/pages/templates *

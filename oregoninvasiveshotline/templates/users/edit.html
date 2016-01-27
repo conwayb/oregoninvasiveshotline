@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if form.instance.pk %}
+    <h3>Edit User</h3>
+{% else %}
+    <h3>Create User</h3>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" value="Submit" class="btn btn-primary"/>
+    <a href="{% url 'users-list' %}" class="btn btn-warning">Cancel</a>
+</form>
+
+{% endblock %}

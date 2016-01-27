@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h3>Legend</h3>
+                <table class="table table-striped map-legend">
+                    {% for category, icons in categories.items %}
+                        {% if forloop.counter0 == 0 %}
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    {% for icon in icons %}
+                                        <th>{{ icon.severity|title }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                        {% endif %}
+                        <tr>
+                            <td>{{ category }}</td>
+                            {% for icon in icons %}
+                                <td class="text-center"><img src="{{ icon.icon_url }}"></td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

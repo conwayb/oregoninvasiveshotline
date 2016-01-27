@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Report List{% endblock %}
+{% block body_class %}report-page white{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
+
+{% block content %}
+    <form class="form-inline">
+        {% include 'reports/search/_fields.html' %}
+        {% include 'reports/search/_buttons.html' %}
+    </form>
+    {% include 'reports/_list.html' %}
+{% endblock %}
+
+{% block js %}
+    {{ block.super }}
+    {% include 'reports/_list.js.html' %}
+{% endblock %}

@@ -1,13 +1,23 @@
 language: python
+
 python:
-  - "3.3"
+    - "3.3"
+    - "3.4"
+
 sudo: false
-# command to install dependencies
-install:
-  - make init
-# command to run tests
-script: make test
+
+addons:
+    - postgresql: "9.4"
+
 services:
-  - elasticsearch
+    - elasticsearch
+
+install:
+    - pip install -r requirements.txt
+
 before_script:
-  - sleep 10
+    - sleep 10
+    - curl -XPUT 'http://localhost:9200/oregoninvasiveshotline-test/'
+
+script:
+    - LOCAL_SETTINGS_FILE="local.base.cfg#test" python manage.py test

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+{% load arc %}
+{% load permissions %}
+{% load staticfiles %}
+
+<html>
+    <head>
+        {% block head %}
+            {% block meta %}
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+            {% endblock %}
+
+            <title>{% block title %}{{ PROJECT.title }}{% endblock %}</title>
+            <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+
+            {% block css %}
+                <link rel="stylesheet" href="{% cdn_url '/bootstrap/3.3.6/css/bootstrap.min.css' %}">
+                <link rel="stylesheet" href="{% cdn_url '/bootstrap/3.3.6/css/bootstrap-theme.min.css' %}">
+                <link rel="stylesheet" href="{% static 'css/main.css' %}">
+            {% endblock %}
+        {% endblock %}
+    </head>
+
+    <body class="{% block body_class %}{% endblock %}">
+        {% block body %}
+            {% if user.is_cloaked %}
+                <div class="alert alert-danger" id="mask-alert">
+                    <strong class="text-danger">You are masquerading as {{ user }}</strong>
+                    <form method="post" action="{% url 'uncloak' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ on_uncloak_goto }}">
+                        <input type="submit" name="submit" value="Un-masquerade" class="btn btn-danger btn-xs">
+                    </form>
+                </div>
+            {% endif %}
+
+            <div class="{% if user.is_cloaked %}cloak-pushdown{% endif %}">
+                <div id="header" class="container">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <a href="{% url 'home' %}">
+                                <img src="{% static 'img/header_logo.png' %}">
+                            </a>
+                        </div>
+
+                        <div class="col-md-7" id="header-links">
+                            <a href="/pages/learn/">Learn</a>
+
+                            <a href="{% url 'reports-list' %}">Search Reports</a>
+
+                            <span style="position: relative;">
+                                <a class="btn btn-warning" href="{% url 'reports-create' %}">Report Now</a>
+                                <!-- only show the phone on certain pages, since it is kinda ugly -->
+                                {% if request.path == '/' or request.path == '/reports/create' %}
+                                    <span id="phone">or call <strong>1-866-INVADER</strong></span>
+                                {% endif %}
+                            </span>
+
+                            {% if user.is_authenticated and user.is_active %}
+                                <a class="strong" href="{% url 'users-home' %}">My Account</a></li>
+                            {% elif request.session.report_ids or user.is_authenticated %}
+                                <a class="strong" href="{% url 'users-home' %}">My Reports</a>
+                            {% else %}
+                                <a href="{% url 'login' %}">Login</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="{% block main_class %}container{% endblock %}">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% block content %}{% endblock %}
+                </div>
+
+                <div class="container text-center text-muted" id="footer">
+                    <p>
+                        &copy; {% now 'Y' %} Portland State University |
+                        Contact <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>
+                        for questions regarding site content
+                    </p>
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block js %}
+            <script src="{% cdn_url '/jquery/1.11.3/jquery-1.11.3.min.js' %}"></script>
+            <script src="{% cdn_url '/bootstrap/3.3.6/js/bootstrap.min.js' %}"></script>
+            <script src="{% static 'js/cookie.js' %}"></script>
+            <script src="{% static 'js/main.js' %}"></script>
+        {% endblock %}
+    </body>
+</html>

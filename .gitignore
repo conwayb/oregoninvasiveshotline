@@ -6,3 +6,6 @@
 /.coverage
 /htmlcov
 /static
+/local.cfg
+/local.stage.cfg
+/local.prod.cfg

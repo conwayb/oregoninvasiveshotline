@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Admin Panel</h3>
+<p><a href="{% url 'species-list' %}">Species list</a></p>
+<p><a href="{% url 'categories-list' %}">Categories list</a></p>
+<p><a href="{% url 'severities-list' %}">Severities list</a></p>
+<p><a href="{% url 'pages-list' %}">Static Pages</a></p>
+<p><a href="{% url 'users-list' %}">Users List</a></p>
+{% endblock %}
