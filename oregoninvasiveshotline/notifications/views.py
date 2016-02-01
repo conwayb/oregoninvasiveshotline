@@ -19,8 +19,8 @@ def create(request):
     if request.method == 'POST':
         form = UserNotificationQueryForm(request.POST, instance=instance)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Saved')
+            instance = form.save()
+            messages.success(request, 'New search subscription "{0.name}" added'.format(instance))
             return HttpResponseRedirect(reverse('reports-list') + '?' + request.GET.urlencode())
     else:
         form = UserNotificationQueryForm(instance=instance)

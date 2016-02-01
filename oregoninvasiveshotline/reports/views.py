@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -67,10 +68,18 @@ def list_(request):
     tab = params.get('tabs') or 'search'
     tab_context = get_tab_counts(user, report_ids)
 
+    subscription_url = reverse('notifications-create')
+    subscription_params = request.GET.urlencode()
+    if subscription_params:
+        subscription_url = '?'.join((subscription_url, subscription_params))
+    else:
+        subscription_url = None
+
     context = {
         'reports': reports,
         'page': page,
         'form': form,
+        'subscription_url': subscription_url,
         'tab': tab,
     }
     context.update(tab_context)

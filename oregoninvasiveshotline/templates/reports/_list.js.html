@@ -1,4 +1,5 @@
 <script src="{{ GOOGLE.maps.url }}"></script>
+<script src="{% static 'js/bootstrap-multiselect.js' %}"></script>
 
 <script>
     $(document).ready(function () {
@@ -50,6 +51,19 @@
                 google.maps.event.trigger(reports[index].marker, 'click');
 
             })
+        });
+
+        // Initialize multiselects
+        var multiSelectMaxHeight = 400;
+        $('select[name="categories"]').multiselect({
+            maxHeight: multiSelectMaxHeight,
+            nonSelectedText: 'Categories',
+            numberDisplayed: 2
+        });
+        $('select[name="counties"]').multiselect({
+            maxHeight: multiSelectMaxHeight,
+            nonSelectedText: 'Counties',
+            numberDisplayed: 2
         });
     });
 </script>

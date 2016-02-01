@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-VERSION = '1.0b1'
+VERSION = '1.0.0'
 
 
 setup(
@@ -14,13 +14,13 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'django-arcutils>=2.0a11',
+        'django-arcutils>=2.0.0',
         'django-bootstrap-form>=3.2',
         'django-cloak',
         'django-haystack>=2.4.1',
         'django-local-settings>=1.0a13',
         'django-perms>=1.2.0',
-        'django>=1.8.8,<1.9',
+        'django>=1.8.9,<1.9',
         'django-pgcli',
         'djangorestframework>=3.3.2',
         'elasticsearch>=1.9.0,<2.0.0',

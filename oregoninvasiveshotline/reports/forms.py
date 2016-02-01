@@ -20,13 +20,13 @@ from .models import Invite, Report
 
 def get_category_choices():
     categories = Category.objects.all().order_by('name')
-    category_choices = [('', '- Category -')]
+    category_choices = []
     category_choices.extend((c.pk, c.name) for c in categories)
     return category_choices
 
 
 def get_county_choices():
-    county_choices = [('', '- County -')]
+    county_choices = []
     for county in County.objects.all().order_by('state', 'name'):
         if county.state == 'Oregon':
             label = county.name
@@ -53,7 +53,7 @@ class ReportSearchForm(SearchForm):
 
     """
 
-    public_fields = ['q', 'order_by', 'source', 'category', 'county']
+    public_fields = ['q', 'order_by', 'source', 'categories', 'counties']
 
     q = forms.CharField(
         required=False,
@@ -74,8 +74,12 @@ class ReportSearchForm(SearchForm):
         ]
     )
 
-    category = forms.ChoiceField(required=False, label='', choices=get_category_choices)
-    county = forms.ChoiceField(required=False, label='', choices=get_county_choices)
+    categories = forms.MultipleChoiceField(
+        required=False, label='', choices=get_category_choices,
+        widget=forms.SelectMultiple(attrs={'title': 'Categories'}))
+    counties = forms.MultipleChoiceField(
+        required=False, label='', choices=get_county_choices,
+        widget=forms.SelectMultiple(attrs={'title': 'Counties'}))
 
     order_by = forms.ChoiceField(
         required=False,
@@ -181,13 +185,13 @@ class ReportSearchForm(SearchForm):
             # search term.
             self.fields['order_by'].choices = self.fields['order_by'].choices[1:]
 
-        county = form_data.get('county')
-        if county:
-            sqs = sqs.filter(county_id=county)
+        counties = form_data.get('counties')
+        if counties:
+            sqs = sqs.filter(county_id__in=counties)
 
-        category = form_data.get('category')
-        if category:
-            sqs = sqs.filter(category_id=category)
+        categories = form_data.get('categories')
+        if categories:
+            sqs = sqs.filter(category_id__in=categories)
 
         is_archived = form_data.get('is_archived')
         if is_archived == 'archived':
