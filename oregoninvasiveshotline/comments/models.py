@@ -24,3 +24,6 @@ class Comment(Visibility, models.Model):
 
     def get_absolute_url(self):
         return reverse("reports-detail", args=[self.report_id]) + "#comment-" + str(self.pk)
+
+    def __str__(self):
+        return 'Comment on: report "{0.report}"'.format(self)

@@ -1,26 +1,53 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block content %}
-<h3>Delete {{ object }}</h3>
+    <h3>Delete {{ object }}</h3>
 
-<div class="alert alert-danger">
-    <h4>Are you sure you want to delete this {{ object|model_name }}?</h4>
-    <p><strong><em>This action cannot be undone!</em></strong></p>
-    {% block extra_warning %}{{ extra_warning|safe }}{% endblock %}
-    <p>The following objects will be deleted as well:</p>
-    <ul>
-        {% for cls, items in will_be_deleted_with %}
-            <li>{{ items|length }} <strong>{{ cls|model_name }}</strong> object{{ items|length|pluralize}}</li>
-        {% empty %}
-            <li><em>N/A</em></li>
-        {% endfor %}
-    </ul>
+    <div class="alert alert-danger">
+        <div>
+            <h4>Are you sure you want to delete this {{ object|model_name }}?</h4>
 
-    <hr />
-    <form method="post">
-        {% csrf_token %}
-        <button class="btn btn-default" onclick="window.history.go(-1); return false">Cancel</button>
-        <button type="submit" name="finish" class="pull-right btn btn-danger" onclick="return confirm('Click OK if you are really sure')">Permanently Delete {{ object|model_name }} and All Related Objects</button>
-    </form>
-</div>
+            <p><strong><em>This action cannot be undone!</em></strong></p>
 
+            {% block extra_warning %}{{ extra_warning|safe }}{% endblock %}
+
+            <p>The following objects will be deleted as well:</p>
+
+            <ul>
+                {% for cls, items in will_be_deleted_with %}
+                    <li>
+                        {{ items|length }}
+                        <strong>{{ cls|model_name }}</strong>
+                        object{{ items|length|pluralize}}
+                        <ul>
+                            {% for item in items %}
+                                <li>
+                                    {% if item.get_absolute_url %}
+                                        <a href="{{ item.get_absolute_url }}">{{ item }}</a>
+                                    {% else %}
+                                        {{ item }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% empty %}
+                    <li><em>N/A</em></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div>
+            <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                <button class="btn btn-default" onclick="window.history.go(-1); return false">
+                    Cancel
+                </button>
+                <button type="submit" name="finish" class="pull-right btn btn-danger"
+                        onclick="return confirm('Click OK if you are really sure')">
+                        Permanently Delete {{ object|model_name }} and All Related Objects
+                </button>
+            </form>
+        </div>
+    </div>
 {% endblock %}

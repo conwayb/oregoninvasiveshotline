@@ -19,3 +19,6 @@ class Image(Visibility, models.Model):
     class Meta:
         db_table = "image"
         ordering = ['pk']
+
+    def __str__(self):
+        return 'Image: "{0.name}" at "{0.image.path}"'.format(self)

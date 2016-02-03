@@ -8,6 +8,11 @@ def can_delete_report(user, report):
 
 
 @permissions.register(model=Report)
+def can_edit_report(user, report):
+    return user.is_active and user.is_staff
+
+
+@permissions.register(model=Report)
 def can_view_private_report(user, report):
     if user.is_anonymous():
         return False

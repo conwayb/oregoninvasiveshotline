@@ -170,11 +170,10 @@ Report #{{ report.pk }} - {{ report }}
             </div>
         {% elif user|can_claim_report:report and not report.claimed_by %}
             <div class="alert alert-warning text-center sidebar-block">
-                <form method="post" action="{% url 'reports-claim' report.pk %}" style="display:inline">
+                <p>This report is unclaimed</p>
+                <form method="post" action="{% url 'reports-claim' report.pk %}">
                     {% csrf_token %}
-                    This report is unclaimed...
-                    <button class="btn btn-warning btn-xs" type="submit">Claim it!</button>
-                    <a href="{% url 'reports-delete' report.pk %}" class="btn btn-default btn-xs">Delete it</a>
+                    <button class="btn-link" type="submit">Claim it!</button>
                 </form>
             </div>
         {% elif report.claimed_by and report.claimed_by != user %}
@@ -192,6 +191,21 @@ Report #{{ report.pk }} - {{ report }}
                     This report is claimed...
                     <button class="btn btn-warning btn-xs" type="submit">steal it!</button>
                 </form>
+            </div>
+        {% endif %}
+
+        {% if user|can_edit_report:report %}
+            <div class="alert alert-warning text-center sidebar-block">
+                <a href="{% url 'admin:reports_report_change' report.pk %}">Edit this report</a>
+            </div>
+        {% endif %}
+
+        {% if user|can_delete_report:report %}
+            <div class="alert alert-danger text-center sidebar-block">
+                <a href="{% url 'reports-delete' report.pk %}" class="text-danger">
+                    Delete this Report
+                    <small>(will ask for confirmation first)</small>
+                </a>
             </div>
         {% endif %}
 

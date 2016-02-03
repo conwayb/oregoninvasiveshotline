@@ -90,3 +90,6 @@ class Notification(models.Model):
     user = models.ForeignKey('users.User')
     report = models.ForeignKey('reports.Report')
     created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return 'Notification for: report "{0.report.title}"'.format(self)

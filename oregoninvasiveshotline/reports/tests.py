@@ -86,9 +86,11 @@ class ReportTest(SuppressPostSaveMixin, TestCase):
         # if the species differ, then it is misidentified
         self.assertEqual(make(Report, actual_species=actual_species, reported_species=reported_species).is_misidentified, True)
 
-    def test_str(self):
-        self.assertEqual("Foo", str(make(Report, actual_species=None, reported_species=None, reported_category=make(Category, name="Foo"))))
-        self.assertEqual("Bar (Foo)", str(make(Report, actual_species=None, reported_species=make(Species, name="Bar", scientific_name="Foo"))))
+    def test_title(self):
+        report = make(Report, actual_species=None, reported_species=None, reported_category=make(Category, name='Foo'))
+        self.assertEqual(report.title, 'Foo')
+        report = make(Report, actual_species=None, reported_species=make(Species, name='Bar', scientific_name='Foo'))
+        self.assertEqual(report.title, 'Bar (Foo)')
 
     def test_image_url(self):
         report = make(Report)
@@ -908,7 +910,7 @@ class ReportListView(TestCase, UserMixin):
         self.client.login(email=self.user.email, password="foo")
         response = self.client.get(reverse("reports-list"))
         self.assertEqual(response.status_code, 200)
-        self.assertIn(str(reports[0]), response.content.decode())
+        self.assertIn(reports[0].title, response.content.decode())
 
 
 class UnclaimViewTest(TestCase, UserMixin):
