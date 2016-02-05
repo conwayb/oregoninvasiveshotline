@@ -242,7 +242,7 @@ class UserTest(TestCase, UserMixin):
         )
 
     def test_str(self):
-        self.assertEqual(str(self.user), "bar, foo")
+        self.assertEqual(str(self.user), "foo bar")
         # the str method should fall back on the email address if a part of
         # their name is blank
         self.user.first_name = ""
@@ -250,10 +250,10 @@ class UserTest(TestCase, UserMixin):
         self.assertEqual(str(self.user), self.user.email)
 
     def test_get_full_name(self):
-        self.assertEqual(self.user.get_full_name(), "bar, foo")
+        self.assertEqual(self.user.get_full_name(), "foo bar")
 
     def test_get_short_name(self):
-        self.assertEqual(self.user.get_short_name(), "foo bar")
+        self.assertEqual(self.user.get_short_name(), "foo b.")
 
     def test_has_perm(self):
         """Staff members have all Django admin perms"""
@@ -278,7 +278,7 @@ class UserTest(TestCase, UserMixin):
             last_name="Bar",
             suffix="PHD"
         )
-        self.assertEqual(user.get_proper_name(), "Mr. Foo Bar PHD")
+        self.assertEqual(user.get_proper_name(), "Mr. Foo Bar, PHD")
 
         other_user = self.create_user(
             username="fdsa",

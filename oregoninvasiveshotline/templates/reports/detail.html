@@ -186,10 +186,10 @@ Report #{{ report.pk }} - {{ report }}
 
         {% if report.claimed_by and user|can_claim_report:report and report.claimed_by != user %}
             <div class="alert alert-warning text-center sidebar-block">
-                <form method="post" action="{% url 'reports-claim' report.pk %}" style="display:inline">
+                <p>This report is already claimed</p>
+                <form method="post" action="{% url 'reports-claim' report.pk %}">
                     {% csrf_token %}
-                    This report is claimed...
-                    <button class="btn btn-warning btn-xs" type="submit">steal it!</button>
+                    <button class="btn-link" type="submit">Steal it!</button>
                 </form>
             </div>
         {% endif %}

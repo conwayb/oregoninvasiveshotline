@@ -69,9 +69,25 @@ kbd {
     padding-top:20px;
 }
 
+#header-links,
+#auth-links {
+    padding-top: 40px;
+}
+#header-links a,
+#auth-links a {
+    font-size: 16px;
+}
 #header-links {
-    padding-top:40px;
-    text-align:center;
+    text-align: center;
+}
+#header-links a {
+    padding: 6px 12px;
+}
+#header-links a.btn {
+    margin-left: 5px;
+}
+#auth-links {
+    text-align: right;
 }
 
 #phone {
@@ -83,20 +99,10 @@ kbd {
     color:#333;
     white-space: nowrap;
 }
-
 @media (max-width: 529px){
     #phone {
         position:static;
     }
-}
-
-#header-links a {
-    font-size:16px;
-    padding:6px 12px;
-}
-
-#header-links a.btn {
-    margin-left:5px;
 }
 
 
@@ -424,22 +430,6 @@ blockquote {
 .getcontent-edit:hover {
     text-decoration:underline;
     color:#fff;
-}
-
-.account-links {
-    float:right;
-}
-
-.account-links a {
-    padding: 10px 5px;
-    display:inline-block;
-}
-
-@media (max-width: 992px){
-    .account-links {
-        float:none;
-        text-align:center;
-    }
 }
 
 .reports-table {

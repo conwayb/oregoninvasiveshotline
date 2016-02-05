@@ -33,12 +33,6 @@ class User(AbstractBaseUser):
         db_table = "user"
         ordering = ['last_name', 'first_name']
 
-    def __str__(self):
-        if self.last_name and self.first_name:
-            return self.get_full_name()
-        else:
-            return self.email
-
     def get_avatar_url(self):
         if self.photo:
             return self.photo.url
@@ -59,15 +53,31 @@ class User(AbstractBaseUser):
         email = signer.unsign(sig)
         return cls.objects.get(email=email)
 
-    # These methods are required to work with Django's admin
     def get_full_name(self):
-        return self.last_name + ", " + self.first_name
+        if self.first_name:
+            name = self.first_name
+            if self.last_name:
+                name = '{name} {self.last_name}'.format_map(locals())
+            return name
+        return self.email
 
     def get_short_name(self):
-        return self.first_name + " " + self.last_name
+        if self.first_name:
+            name = self.first_name
+            if self.last_name:
+                last_initial = self.last_name[0]
+                name = '{name} {last_initial}.'.format_map(locals())
+            return name
+        return self.email
 
     def get_proper_name(self):
-        return ("%s %s %s %s" % (self.prefix, self.first_name, self.last_name, self.suffix)).strip()
+        if self.first_name:
+            parts = (self.prefix, self.first_name, self.last_name)
+            name = ' '.join(p for p in parts if p)
+            if self.suffix:
+                name = '{name}, {self.suffix}'.format_map(locals())
+            return name
+        return self.email
 
     # we don't need granular permissions; all staff will have access to
     # everything
@@ -83,3 +93,6 @@ class User(AbstractBaseUser):
         allowed to cloak as another user
         """
         return self.is_staff
+
+    def __str__(self):
+        return self.get_full_name()

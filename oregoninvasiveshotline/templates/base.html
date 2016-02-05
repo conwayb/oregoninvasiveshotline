@@ -40,31 +40,76 @@
             <div class="{% if user.is_cloaked %}cloak-pushdown{% endif %}">
                 <div id="header" class="container">
                     <div class="row">
-                        <div class="col-md-5">
+                        <div class="col-lg-4 col-md-5 col-sm-12">
                             <a href="{% url 'home' %}">
                                 <img src="{% static 'img/header_logo.png' %}">
                             </a>
                         </div>
 
-                        <div class="col-md-7" id="header-links">
+                        <div class="col-lg-4 col-md-4 col-sm-8" id="header-links">
                             <a href="/pages/learn/">Learn</a>
 
-                            <a href="{% url 'reports-list' %}">Search Reports</a>
+                            <a href="{% url 'reports-list' %}">Search&nbsp;Reports</a>
 
                             <span style="position: relative;">
                                 <a class="btn btn-warning" href="{% url 'reports-create' %}">Report Now</a>
                                 <!-- only show the phone on certain pages, since it is kinda ugly -->
                                 {% if request.path == '/' or request.path == '/reports/create' %}
-                                    <span id="phone">or call <strong>1-866-INVADER</strong></span>
+                                    <span id="phone" class="hidden-md hidden-sm hidden-xs">
+                                        or call <strong>1-866-INVADER</strong>
+                                    </span>
                                 {% endif %}
                             </span>
+                        </div>
 
-                            {% if user.is_authenticated and user.is_active %}
-                                <a class="strong" href="{% url 'users-home' %}">My Account</a></li>
-                            {% elif request.session.report_ids or user.is_authenticated %}
-                                <a class="strong" href="{% url 'users-home' %}">My Reports</a>
+                        <div class="col-lg-4 col-md-3 col-sm-4" id="auth-links">
+                            {% if user.is_authenticated %}
+                                <div class="dropdown">
+                                    <button type="button"
+                                            class="btn btn-default dropdown-toggle"
+                                            data-toggle="dropdown"
+                                            aria-expanded="true"
+                                            aria-haspopup="true">
+                                        <span class="glyphicon glyphicon-user"></span>
+                                        {{ user.get_short_name }}
+                                        <span class="caret"></span>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        {% if request.session.report_ids %}
+                                            <li>
+                                                <a class="strong" href="{% url 'users-home' %}">My Reports</a>
+                                            </li>
+                                        {% endif %}
+
+                                        {% if user.is_staff %}
+                                            <li>
+                                                <a href="{% url 'admin-panel' %}">Admin</a>
+                                            </li>
+                                        {% elif user.is_active %}
+                                            <li>
+                                                <a href="{% url 'species-list' %}">Species</a>
+                                            </li>
+                                        {% endif %}
+
+                                        {% if user.is_active %}
+                                            <li>
+                                                <a class="strong" href="{% url 'users-home' %}">My Account</a>
+                                            </li>
+                                        {% endif %}
+
+                                        <li class="divider"></li>
+
+                                        <li>
+                                            <a href="{% url 'logout' %}">Log out</a>
+                                        </li>
+                                    </ul>
+                                </div>
                             {% else %}
-                                <a href="{% url 'login' %}">Login</a>
+                                <a href="{% url 'login' %}" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-log-in"></span>
+                                    Log in
+                                </a>
                             {% endif %}
                         </div>
                     </div>
