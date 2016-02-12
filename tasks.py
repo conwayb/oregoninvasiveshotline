@@ -15,7 +15,7 @@ def init(ctx, overwrite=False):
     install(ctx)
     createdb(ctx, drop=overwrite)
     migrate(ctx)
-    rebuild_index(ctx, interactive=False)
+    rebuild_index(ctx, input=False)
     loaddata(ctx)
     generate_icons(ctx, clean=overwrite, input=False)
 
