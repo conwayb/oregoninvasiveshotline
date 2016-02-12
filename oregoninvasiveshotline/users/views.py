@@ -119,16 +119,31 @@ class Detail(DetailView):
 
 @permissions.can_list_users
 def list_(request):
-    """
-    List out all the users in the system
-    """
+    """List all users in the system *or* search for users.
 
-    form = UserSearchForm(request.GET)
-    users = form.search()
+    If the user is *not* doing a search, all the users are loaded and
+    ordered by the default User ordering.
 
+    If the user is doing a search (indicated by the presence of certain
+    query parameters), then we do a search and order the results by
+    relevance (we just let Haystack/ES do its default ordering).
+
+    """
+    params = request.GET
+    form = UserSearchForm(params)
+
+    # Search parameters
+    q = params.get('q')
+    is_manager = params.get('is_manager')
+
+    if q or is_manager:
+        users = form.search()
+    else:
+        users = User.objects.all()
+
+    active_page = params.get('page')
     paginator = Paginator(users, settings.ITEMS_PER_PAGE)
 
-    active_page = request.GET.get('page')
     try:
         users = paginator.page(active_page)
     except PageNotAnInteger:
@@ -136,9 +151,9 @@ def list_(request):
     except EmptyPage:
         users = paginator.page(paginator.num_pages)
 
-    return render(request, "users/list.html", {
-        "users": users,
-        "form": form,
+    return render(request, 'users/list.html', {
+        'users': users,
+        'form': form,
     })
 
 

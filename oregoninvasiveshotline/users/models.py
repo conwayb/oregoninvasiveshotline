@@ -53,6 +53,11 @@ class User(AbstractBaseUser):
         email = signer.unsign(sig)
         return cls.objects.get(email=email)
 
+    @property
+    def full_name(self):
+        """A nicer way to get the user's full name."""
+        return self.get_full_name()
+
     def get_full_name(self):
         if self.first_name:
             name = self.first_name

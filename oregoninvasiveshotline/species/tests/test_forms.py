@@ -9,17 +9,14 @@ from ..search_indexes import SpeciesIndex
 
 
 class SpeciesSearchFormTest(TestCase):
-    """
-    Some unit tests to ensure forms in the species app work as they should.
 
-    """
     def setUp(self):
-        super(SpeciesSearchFormTest, self).setUp()
-        make(Species, name="stuff")
-        self.user = User(first_name="foo", last_name="bar", email="foobar@example.com", is_staff=True)
-        self.user.set_password("foobar")
+        super().setUp()
+        make(Species, name='stuff')
+        self.user = User(first_name='foo', last_name='bar', email='foobar@example.com', is_staff=True)
+        self.user.set_password('foobar')
         self.user.save()
-        self.client.login(username="foobar@example.com", password="foobar")
+        self.client.login(username='foobar@example.com', password='foobar')
         self.index = SpeciesIndex()
         self.index.clear()
 
@@ -27,26 +24,26 @@ class SpeciesSearchFormTest(TestCase):
         self.index.clear()
 
     def test_get_initial_queryset(self):
-        form = SpeciesSearchForm(user=self.user, data={'q': ''})
+        form = SpeciesSearchForm(data={'q': ''})
         results = form.search()
         self.assertEqual(len(results), SpeciesIndex.objects.all().models(Species).count())
 
     def test_valid_form(self):
-        form = SpeciesSearchForm({'q': 'other'}, user=self.user)
+        form = SpeciesSearchForm({'q': 'other'})
         self.assertTrue(form.is_valid())
 
     def test_form_with_empty_querystring_returns_everything(self):
-        form = SpeciesSearchForm({'q': ''}, user=self.user)
+        form = SpeciesSearchForm({'q': ''})
         self.assertTrue(form.is_valid())
         results = form.search()
         self.assertEqual(len(results), SpeciesIndex.objects.all().models(Species).count())
 
     def test_search_returns_correct_object(self):
         # test object
-        name = "other"
+        name = 'other'
         make(Species, name=name)
         # set it all up
-        form = SpeciesSearchForm({'q': 'other'}, user=self.user)
+        form = SpeciesSearchForm({'q': 'other'})
         # make sure the form is valid
         self.assertTrue(form.is_valid())
         results = form.search()[0]
@@ -55,15 +52,15 @@ class SpeciesSearchFormTest(TestCase):
         self.assertEqual(results.name, name)
 
     def test_order_by_field_sorts_species(self):
-        make(Species, name="albatross", scientific_name="diomedeidae")
-        make(Species, name="buffalo", scientific_name="bison")
-        make(Species, name="cat", scientific_name="felis catus")
+        make(Species, name='albatross', scientific_name='diomedeidae')
+        make(Species, name='buffalo', scientific_name='bison')
+        make(Species, name='cat', scientific_name='felis catus')
 
         form = SpeciesSearchForm({
             'q': '',
             'order_by': 'name',
             'order': 'descending',
-        }, user=self.user)
+        })
         results = form.search()
 
         species = list()

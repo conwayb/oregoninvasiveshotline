@@ -14,12 +14,42 @@ from oregoninvasiveshotline.species.models import Category, Severity, Species
 
 @permissions.is_active
 def list_(request):
-    form = SpeciesSearchForm(request.GET, user=request.user)
-    species = form.search()
+    """List all species in the system *or* search for species.
 
+    If the user is *not* doing a search, all the species are loaded.
+
+    If the user *is* doing a search (indicated by the presence of
+    certain query parameters), then we load the species that match the
+    search criteria.
+
+    In either case, the species are then ordered by as indicated by
+    the `order_by` and `order` query parameters.
+
+    """
+    params = request.GET
+    form = SpeciesSearchForm(params)
+
+    # Search parameters
+    q = params.get('q')
+
+    if q:
+        results = form.search()
+        # XXX: Is there a better way to grab the species?
+        pks = (r.pk for r in results)
+        species = Species.objects.filter(pk__in=pks)
+    else:
+        species = Species.objects.all()
+
+    order_by = params.get('order_by', 'name')
+    order = params.get('order')
+    if order_by:
+        if order == 'descending':
+            order_by = '-{order_by}'.format_map(locals())
+        species = species.order_by(order_by)
+
+    active_page = params.get('page')
     paginator = Paginator(species, settings.ITEMS_PER_PAGE)
 
-    active_page = request.GET.get('page')
     try:
         species = paginator.page(active_page)
     except PageNotAnInteger:
@@ -28,8 +58,8 @@ def list_(request):
         species = paginator.page(paginator.num_pages)
 
     return render(request, 'species/list.html', {
-        "all_species": species,
-        "form": form,
+        'all_species': species,
+        'form': form,
     })
 
 

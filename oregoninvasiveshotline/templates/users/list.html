@@ -1,55 +1,62 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block content %}
-<div class="pull-right">
-    <a class="btn btn-primary" href="{% url 'users-create' %}">Create User</a>
-</div>
-<h3>User List</h3>
-
-<form class="form-inline">
-    {{ form|bootstrap }}
     <div class="pull-right">
-        <input type="submit" value="Search" class="btn btn-primary"/>
-        <a href="{% url 'users-list' %}" class="btn btn-warning">Reset</a>
+        <a class="btn btn-primary" href="{% url 'users-create' %}">Create User</a>
     </div>
-</form>
-<br />
 
-{% if users %}
-    <table class="table table-condensed table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th class="text-center">Manager</th>
-                <th>&nbsp;</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
+    <h3>User List</h3>
+
+    <form class="form-inline">
+        {{ form|bootstrap }}
+        <div class="pull-right">
+            <input type="submit" value="Search" class="btn btn-primary"/>
+            <a href="{% url 'users-list' %}" class="btn btn-warning">Reset</a>
+        </div>
+    </form>
+
+    <br>
+
+    {% if users %}
+        <p class="alert alert-info">
+            <span class="glyphicon glyphicon-info-sign"></span>
+            Note: <i>Users that <b>don't</b> have a first or last name set appear first in this list.</i>
+        </p>
+        <table class="table table-condensed table-striped">
+            <thead>
                 <tr>
-                    <!--
-                    We manually build the user's full name if they have one
-                    instead of calling get_full_name because we cannot
-                    determine from the template if we recieve a full name or
-                    nothing at all.
-                    -->
-                    <td><a href="{% url 'users-edit' user.pk %}">{% if user.first_name and user.last_name %}{{ user.last_name }}, {{ user.first_name }}{% else %}{{ user.email }}{% endif %}</a></td>
-                    <td>{{ user.email }}</td>
-                    <td class="text-center">{% if user.is_active %}<span class="glyphicon glyphicon-ok"></span>{% endif %}</td>
-                    <td class="text-right">
-                        <a href="{% url 'users-delete' user.pk %}" class="text-danger">
-                            <span class="glyphicon glyphicon-trash"></span>
-                        </a>
-                    </td>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th class="text-center">Manager?</th>
+                    <th class="text-right">&nbsp;</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% include "_pagination.html" with items=users %}
-{% elif form.in_search_mode %}
-    <div class="alert alert-warning">No matching results!</div>
-{% else %}
-    <div class="alert alert-warning">You haven't created any users!</div>
-{% endif %}
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td><a href="{% url 'users-edit' user.pk %}">{{ user.full_name }}</a></td>
+                        <td>{{ user.email }}</td>
+                        <td class="text-center">
+                            {% if user.is_active %}
+                                <span class="glyphicon glyphicon-ok"></span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="text-right">
+                            <a href="{% url 'users-edit' user.pk %}"
+                               title="Edit this user's info"><span class="glyphicon glyphicon-edit"></span></a>
+                            &nbsp;
+                            <a href="{% url 'users-delete' user.pk %}" title="Delete this user"
+                               class="text-danger"><span class="glyphicon glyphicon-trash"></span></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
+        {% include '_pagination.html' with items=users %}
+    {% else %}
+        <div class="alert alert-warning">No users matching those search criteria were found.</div>
+    {% endif %}
 {% endblock %}
