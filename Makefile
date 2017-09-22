@@ -6,50 +6,31 @@ egg_info = $(egg_name).egg-info
 venv ?= .env
 venv_python ?= python3.5
 bin = $(venv)/bin
-site_packages = $(venv)/lib/$(venv_python)/site-packages
-
-arctasks = $(site_packages)/arctasks
-arctasks_url = https://github.com/PSU-OIT-ARC/arctasks/archive/master.tar.gz#egg=psu.oit.arc.tasks
-
 env ?= stage
 
-init: $(venv) $(arctasks)
-	@$(bin)/runcommand init
-reinit: clean-egg-info clean-venv init
 
 venv: $(venv)
 $(venv):
-	virtualenv -p $(venv_python) $(venv)
-
-install: $(venv) $(egg_info)
-	$(venv)/bin/pip install -r requirements.txt
-reinstall: clean-install install
+	$(venv_python) -m venv $(venv)
 
 egg-info: $(egg_info)
 $(egg_info):
 	$(bin)/python setup.py egg_info
 
-$(arctasks):
-	$(bin)/pip install -f https://pypi.research.pdx.edu/dist/ $(arctasks_url)
-install-arctasks: $(arctasks)
-reinstall-arctasks: clean-arctasks $(arctasks)
+install: $(venv) $(egg_info)
+	$(venv)/bin/pip install -r requirements.txt
+reinstall: clean-install install
+
+init: install
+	@$(bin)/runcommand init
+reinit: clean-egg-info clean-venv init
 
 test: install
 	@$(bin)/runcommand test
 coverage: install
 	$(bin)/runcommand coverage
-
-run-services:
-	docker network create --driver bridge $(package) || echo "$(package) network exists"
-	docker volume create --name $(package)-elasticsearch-data
-	docker volume create --name $(package)-postgres-data
-	docker-compose --file docker-compose.services.yaml up
-
 run:
 	@$(bin)/runcommand runserver
-
-deploy:
-	$(bin)/runcommand --echo --env $(env) deploy
 
 clean: clean-pyc
 clean-all: clean-build clean-coverage clean-dist clean-egg-info clean-pyc clean-venv

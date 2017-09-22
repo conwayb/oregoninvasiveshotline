@@ -14,6 +14,10 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'elasticsearch>=1.9.0,<2.0.0',
+        'requests_aws4auth',
+        'boto3',
+
         'django>=1.8.18,<1.9',
         'django-arcutils>=2.24.0',
         'django-bootstrap-form>=3.2.1',
@@ -22,12 +26,10 @@ setup(
         'django-perms>=2.0.0',
         'django-pgcli>=0.0.2',
         'djangorestframework>=3.6.4',
-        'elasticsearch>=1.9.0,<2.0.0',
         'Markdown>=2.6.8',
         'Pillow>=4.3.0',
         'psycopg2>=2.7.3.1',
         'pytz>=2017.2',
-        'psu.oit.arc.tasks',
     ],
     extras_require={
         'dev': [
