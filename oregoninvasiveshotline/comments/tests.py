@@ -253,3 +253,43 @@ class CommentDeleteViewTest(TestCase, UserMixin):
         self.client.login(email=self.user.email, password="foo")
         response = self.client.post(reverse("comments-delete", args=[comment.pk]))
         self.assertRedirects(response, reverse("reports-detail", args=[report.pk]))
+
+
+class CommentUrlizeViewTest(TestCase, UserMixin):
+
+    def setUp(self):
+        self.user = self.create_user(
+            username="foo@example.com",
+            password="foo",
+            is_active=True
+        )
+
+    def test_get(self):
+        report = make(Report, created_by=self.user, point=ORIGIN)
+        comment = make(Comment, report=report, created_by=self.user, body="www.google.com")
+        self.client.login(email=self.user.email, password="foo")
+        self.assertEqual(Comment.objects.get(pk=comment.pk).body, "www.google.com")
+        response = self.client.get(reverse("reports-detail", args=[report.pk]))
+        self.assertIn('<a href="http://www.google.com"', str(response.content))
+
+
+class CommentNoUrlizeViewTest(TestCase, UserMixin):
+
+    def setUp(self):
+        self.user = self.create_user(
+            username="foo@example.com",
+            password="foo",
+            is_active=False
+        )
+
+    def test_get(self):
+        report = make(Report, created_by=self.user, point=ORIGIN)
+        comment = make(Comment, report=report, created_by=self.user, body="www.google.com")
+        session = self.client.session
+        session['report_ids'] = [report.pk]
+        session.save()
+        self.client.login(email=self.user.email, password="foo")
+        self.assertEqual(Comment.objects.get(pk=comment.pk).body, "www.google.com")
+        response = self.client.get(reverse("reports-detail", args=[report.pk]))
+        self.assertContains(response, 'www.google.com')
+        self.assertNotIn('<a href="http://www.google.com"', str(response.content))

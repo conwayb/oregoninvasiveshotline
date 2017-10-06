@@ -285,6 +285,7 @@ kbd {
 .comment-list .comment {
     padding:10px;
     margin-top:0;
+    word-wrap: break-word;
 }
 
 .comment-list .comment:nth-child(odd) {
