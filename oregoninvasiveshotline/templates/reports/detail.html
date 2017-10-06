@@ -8,7 +8,7 @@ Report #{{ report.pk }} - {{ report }}
 <div class="row">
     <div class="col-md-8">
         <div class="report-heading clearfix">
-            <img src="{{ report.icon_url }}" title="{{ report.category.name }} - {{ report.species.severity }}" alt="{{ report.category.name }} - {{ report.species.severity }}" /> 
+            <img src="{{ report.icon_url }}" title="{{ report.category.name }} - {{ report.species.severity }}" alt="{{ report.category.name }} - {{ report.species.severity }}" />
             <h3>{{ report.species.name|default:report.reported_category }} <small>{% if report.species.scientific_name %}({{ report.species.scientific_name }}){% endif %}</small> on {{ report.created_on|date:"M j, Y" }}</h3>
             {% if report.is_misidentified %}
                 <p class="misidentified">Originally reported as {{ report.reported_species }}</p>
@@ -63,7 +63,11 @@ Report #{{ report.pk }} - {{ report }}
             {% for comment in comments %}
                 <div id="comment-{{ comment.pk }}" class="comment">
                     <img src="{{ comment.created_by.get_avatar_url }}" class="pull-left" width="64" height="64" />
-                    {{ comment.body|linebreaksbr }}
+                    {% if comment.created_by.is_active %}
+                        {{ comment.body|urlize|linebreaksbr }}
+                    {% else %}
+                        {{ comment.body|linebreaksbr }}
+                    {% endif %}
                     <p class="text-right comment-meta">
                         {% if user.is_active or user|can_create_comment:report or comment.created_by.is_active %}
                             <cite>{{ comment.created_by }} {% if comment_form.visibility %}({{ comment.get_visibility_display.split.0|lower }}){% endif %}</cite>
