@@ -583,6 +583,24 @@ class DetailViewTest(TestCase, UserMixin):
         self.assertRedirects(response, reverse("reports-detail", args=[report.pk]))
         self.assertEqual(1, Comment.objects.filter(report=report).count())
 
+    def test_create_comment_and_claim(self):
+        report = make(Report, point=ORIGIN, claimed_by=None)
+        self.assertIsNone(report.claimed_by)
+        self.client.login(email=self.user.email, password="foo")
+        data = {
+            "body": "foo",
+            "visibility": Comment.PUBLIC,
+            "form-TOTAL_FORMS": "0",
+            "form-INITIAL_FORMS": "0",
+            "form-MIN_NUM_FORMS": "0",
+            "form-MAX_NUM_FORMS": "1000",
+            "submit_flag": CommentForm.SUBMIT_FLAG
+        }
+        response = self.client.post(reverse("reports-detail", args=[report.pk]), data)
+        self.assertRedirects(response, reverse("reports-detail", args=[report.pk]))
+        response = self.client.get(reverse("reports-detail", args=[report.pk]))
+        self.assertEqual(response.context['report'].claimed_by, self.user)
+
     def test_forms_are_none_for_anonymous_users(self):
         report = make(Report, is_public=True, point=ORIGIN)
         response = self.client.get(reverse("reports-detail", args=[report.pk]))

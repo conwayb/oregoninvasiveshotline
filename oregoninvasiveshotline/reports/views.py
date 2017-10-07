@@ -27,7 +27,7 @@ from oregoninvasiveshotline.utils import get_tab_counts
 
 from .forms import InviteForm, ManagementForm, ReportForm, ReportSearchForm
 from .models import Invite, Report
-from .perms import can_manage_report, can_view_private_report, permissions
+from .perms import can_manage_report, can_view_private_report, can_claim_report, permissions
 from .serializers import ReportSerializer
 from .utils import icon_file_name
 
@@ -225,6 +225,7 @@ def detail(request, report_id):
     if can_create_comment(request.user, report):
         ImageFormSet = get_image_formset(user=request.user)
         PartialCommentForm = curry(CommentForm, user=request.user, report=report)
+
         if request.POST and submit_flag == CommentForm.SUBMIT_FLAG:
             image_formset = ImageFormSet(request.POST, request.FILES, queryset=Image.objects.none())
             comment_form = PartialCommentForm(request.POST, request.FILES)
@@ -232,7 +233,13 @@ def detail(request, report_id):
                 comment = comment_form.save(request=request)
                 image_formset.save(user=comment.created_by, fk=comment)
                 messages.success(request, "Comment Added!")
+                if can_claim_report(request.user, report):
+                    if report.claimed_by is None:
+                        report.claimed_by = request.user
+                        report.save()
+                        messages.success(request, "Report claimed!")
                 return redirect(request.get_full_path())
+
         else:
             comment_form = PartialCommentForm()
             image_formset = ImageFormSet(queryset=Image.objects.none())
