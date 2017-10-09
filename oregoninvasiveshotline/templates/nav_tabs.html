@@ -10,6 +10,9 @@
     {% if open_and_claimed %}
         <li {% if tab == "open_and_claimed" %}class="active"{% endif %}><a href="{% url 'reports-list' %}?order_by=-created_on&is_public=notpublic&is_archived=notarchived&claimed_by=me&tabs=open_and_claimed">Open and Claimed ({{ open_and_claimed }})</a></li>
     {% endif %}
+    {% if claimed_by_me %}
+        <li {% if tab == "claimed_by_me" %}class="active"{% endif %}><a href="{% url 'reports-list' %}?order_by=-created_on&claimed_by=me&tabs=claimed_by_me">Claimed by me({{ claimed_by_me }})</a></li>
+    {% endif %}
     {% if unclaimed_reports %}
         <li {% if tab == "unclaimed_reports" %}class="active"{% endif %}><a href="{% url 'reports-list' %}?order_by=-created_on&is_public=notpublic&is_archived=notarchived&claimed_by=nobody&tabs=unclaimed_reports">Unclaimed ({{ unclaimed_reports }})</a></li>
     {% endif %}

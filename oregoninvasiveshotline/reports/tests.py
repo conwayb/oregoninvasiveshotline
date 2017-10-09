@@ -201,13 +201,18 @@ class ReportSearchFormTest(TestCase, UserMixin):
             self.report.delete()
         self.index.clear()
 
-    def test_filter_by_claimed_reports(self):
-        claimed_report = make(Report, claimed_by=self.user, point=ORIGIN)
+    def test_filter_by_open_and_claimed_reports(self):
+        # test combined filters
+        claimed_open_report = make(
+            Report, claimed_by=self.user, is_archived=False, point=ORIGIN)
+        claimed_archived_report = make(
+            Report, claimed_by=self.user, is_archived=True, point=ORIGIN)
         unclaimed_report = make(Report, claimed_by=None, point=ORIGIN)
 
         form = ReportSearchForm({
             "q": "",
             "claimed_by": "me",
+            "is_archived": "notarchived"
         }, user=self.user)
         results = form.search()
 
@@ -217,9 +222,32 @@ class ReportSearchFormTest(TestCase, UserMixin):
         for r in results:
             reports.append(r.object)
 
-        self.assertIn(claimed_report, reports)
+        self.assertIn(claimed_open_report, reports)
+        self.assertNotIn(claimed_archived_report, reports)
         self.assertNotIn(unclaimed_report, reports)
         self.assertEqual(len(reports), 1)
+
+    def test_filter_by_claimed_by_me_reports(self):
+        claimed_open_report = make(
+            Report, claimed_by=self.user, is_archived=False, point=ORIGIN)
+        claimed_archived_report = make(
+            Report, claimed_by=self.user, is_archived=True, point=ORIGIN)
+        unclaimed_report = make(Report, claimed_by=None, point=ORIGIN)
+
+        form = ReportSearchForm({
+            "q": "",
+            "claimed_by": "me",
+        }, user=self.user)
+        results = form.search()
+
+        reports = list()
+        for r in results:
+            reports.append(r.object)
+
+        self.assertIn(claimed_open_report, reports)
+        self.assertIn(claimed_archived_report, reports)
+        self.assertNotIn(unclaimed_report, reports)
+        self.assertEqual(len(reports), 2)
 
     def test_filter_by_unclaimed_reports(self):
         claimed_report = make(Report, claimed_by=self.user, point=ORIGIN)
@@ -231,8 +259,6 @@ class ReportSearchFormTest(TestCase, UserMixin):
         }, user=self.user)
         results = form.search()
 
-        # Since form.search() returns a SearchQuerySet, we create from that a
-        # list of reports so we can see if our desired reports are in the list.
         reports = list()
         for r in results:
             reports.append(r.object)
