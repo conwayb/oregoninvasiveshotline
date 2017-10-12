@@ -1,8 +1,29 @@
 # Change log for Oregon Invasives Hotline
 
-## 1.11.0 - unreleased
+## 1.11.0 - 2017-10-12
 
-In progress...
+### Added
+
+- Add claimed by me search filter tab
+- Mangers claim unclaimed report when commenting
+- Urlize comment body if manager
+- Add Docker config for running services in dev
+
+### Fixed
+
+- Add DISTRIBUTION setting in local.base.cfg
+- Corrects static asset reference.
+
+### Changed
+- Start using Python 3.5
+
+### Miscellaneous
+
+- Pin DRF requirement to < 3.7
+- Updates package dependencies.
+- Revises docker-compose definitions.
+- Remove mommy-spatial-generators dependency
+- Various build/deploy tooling updates
 
 
 ## 1.10.0 - 2016-08-16
