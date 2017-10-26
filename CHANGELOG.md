@@ -1,5 +1,11 @@
 # Change log for Oregon Invasives Hotline
 
+
+## 1.12.0 - unreleased
+
+In progress ...
+
+
 ## 1.11.0 - 2017-10-12
 
 ### Added
