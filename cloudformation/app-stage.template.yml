@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Resource stack for Oregon Invasives Hotline"
+Resources:
+  Host:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/ec2/private_host/private_host.template.yml
+      Parameters:
+        ImageId: ami-6df1e514
+        HostName: oregoninvasiveshotline
+        VpcStackName: vpc-stage
+        HostedZoneName: stage.wdt.pdx.edu.
+        UseEFSFilesystem: true
+  Networking:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/ec2/private_host/networking.template.yml
+      Parameters:
+        EC2Instance: !GetAtt Host.Outputs.InstanceId
+        PrivateIp: !GetAtt Host.Outputs.PrivateIP
+        DnsHostName: oregoninvasiveshotline
+        VpcStackName: vpc-stage
+        HostedZoneName: stage.wdt.pdx.edu.
+        InternalDNSZone: stage-internal.
+        ELBListenerPriority: 2
+        ListenOn80: true
+  Database:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/rds/postgres.template.yml
+      Parameters:
+        VpcStackName: vpc-stage
+        AvailabilityZone: us-west-2a
+        DBEngineVersion: 9.6
+        DBInstanceName: oregoninvasiveshotline
+        DBUsername: oregoninvasiveshotline_l
+        DBPassword: __SECRET__
+        EC2StackName: !GetAtt Host.Outputs.StackName
+  SearchIndex:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3-us-west-2.amazonaws.com/cloudformation-templates.wdt.pdx.edu/es/domain.template.yml
+      Parameters:
+        Name: oregoninvasiveshotline-index
+        Version: 1.5
+        EC2StackName: !GetAtt Host.Outputs.StackName
