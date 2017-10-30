@@ -1,3 +1,2 @@
 -f https://pypi.research.pdx.edu/dist/
-https://github.com/PSU-OIT-ARC/arctasks/archive/master.zip#egg=psu.oit.arc.tasks
 -e .[dev]

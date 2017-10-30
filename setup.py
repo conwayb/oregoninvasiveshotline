@@ -14,6 +14,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
+        'psu.oit.arc.tasks>=1.1.0',
         'django>=1.8.18,<1.9',
         'django-arcutils>=2.24.0',
         'django-bootstrap-form>=3.2.1',
@@ -27,7 +28,6 @@ setup(
         'Pillow>=4.3.0',
         'psycopg2>=2.7.3.1',
         'pytz>=2017.2',
-        'psu.oit.arc.tasks',
     ],
     extras_require={
         'dev': [

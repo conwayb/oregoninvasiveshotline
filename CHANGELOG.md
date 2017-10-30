@@ -3,8 +3,9 @@
 
 ## 1.12.0 - unreleased
 
-In progress ...
+### Added
 
+- Configures the project to use the 'arctasks.aws' backend.
 
 ## 1.11.0 - 2017-10-12
 
@@ -27,7 +28,6 @@ In progress ...
 - Revises docker-compose definitions.
 - Remove mommy-spatial-generators dependency
 - Various build/deploy tooling updates
-
 
 ## 1.10.0 - 2016-08-16
 

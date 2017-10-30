@@ -7,8 +7,8 @@
 /*.egg-info/
 /.coverage
 /local.cfg
-/local.stage.cfg
-/local.prod.cfg
+/local.dev.cfg
+/local.test.cfg
 
 # Anywhere
 node_modules/
