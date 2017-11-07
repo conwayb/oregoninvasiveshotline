@@ -34,8 +34,6 @@ run:
 
 clean: clean-pyc
 clean-all: clean-build clean-coverage clean-dist clean-egg-info clean-pyc clean-venv
-clean-arctasks:
-	$(bin)/pip uninstall --yes psu.oit.arc.tasks || echo "ARCTasks not installed"
 clean-build:
 	rm -rf build
 clean-coverage:
@@ -59,8 +57,6 @@ clean-venv:
     install \
     reinstall \
     egg-info \
-    install-arctasks \
-    reinstall-arctasks \
     test \
     coverage \
     run-services \
@@ -68,7 +64,6 @@ clean-venv:
     deploy \
     clean \
     clean-all \
-    clean-arctasks \
     clean-build \
     clean-coverage \
     clean-dist \

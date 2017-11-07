@@ -5,7 +5,7 @@
 
 ### Added
 
-- Configures the project to use the 'arctasks.aws' backend.
+- Configures the project to use the 'emcee.aws' backend.
 
 ## 1.11.0 - 2017-10-12
 

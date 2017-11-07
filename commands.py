@@ -1,18 +1,18 @@
 from runcommands import command
 
-from arctasks.dev import commands as dev
-from arctasks.aws import commands as aws
-from arctasks.aws.deploy import AWSDeployer
-from arctasks.django import call_command
+from emcee.dev import commands as dev
+from emcee.aws import commands as aws
+from emcee.aws.deploy import AWSDeployer
+from emcee.django import call_command
 
-from arctasks.aws.commands import *
+from emcee.aws.commands import *
 
 
 @command(env='dev')
 def loaddata(config):
     # XXX: Prevents difficult-to-diagnose name shadowing by
     #      tucking 'manage' in the local (function) scope.
-    from arctasks.django import manage
+    from emcee.django import manage
 
     manage(config, (
         'loaddata',
@@ -34,7 +34,7 @@ def init(config, overwrite=False):
 
 class Deployer(AWSDeployer):
     def post_install(self):
-        from arctasks.remote import manage, rsync
+        from emcee.remote import manage, rsync
 
         # Push media
         remote(self.config, ('mkdir', '-p', '{remote.path.media}'))

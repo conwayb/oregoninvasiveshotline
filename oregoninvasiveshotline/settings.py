@@ -1,9 +1,9 @@
 from django.conf import global_settings
 
 from arcutils.settings import init_settings
-from arctasks.aws.processors import (set_secret_key,
-                                     set_database_parameters,
-                                     set_elasticsearch_kwargs)
+from emcee.aws.processors import (set_secret_key,
+                                  set_database_parameters,
+                                  set_elasticsearch_kwargs)
 
 
 settings = init_settings(settings_processors=[set_secret_key,
