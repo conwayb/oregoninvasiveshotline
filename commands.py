@@ -36,9 +36,18 @@ class Deployer(AWSDeployer):
     def post_install(self):
         from emcee.remote import manage, rsync
 
-        # Push media
-        remote(self.config, ('mkdir', '-p', '{remote.path.media}'))
+        # create media directory on EBS mount and link to it from app root
+        remote(self.config, ('mkdir', '-p', '/vol/store/media'), sudo=True)
+        remote(self.config, ('mkdir', '-p', '{remote.path.root}/media'), sudo=True)
+        remote(
+            self.config,
+            ('ln', '-sf', '/vol/store/media', '{remote.path.media}'),
+            sudo=True
+        )
+        remote(self.config, ('chown', '-h', '{service.user}', '{remote.path.media}'), sudo=True)
+        # sync icons, etc
         rsync(self.config, 'media/*', self.config.remote.path.media)
+        remote(self.config, ('chown', '-R', '{service.user}:nginx', '/vol/store/media'), sudo=True)
         # Migrate database schema
         manage(self.config, 'migrate')
         # Rebuild search index
@@ -51,6 +60,7 @@ class Deployer(AWSDeployer):
 def deploy_app(config, provision=False, createdb=False):
     if provision:
         aws.provision_webhost(config, with_gis=True)
+        aws.provision_volume(config, mount_point='/vol/store')
     if createdb:
         aws.createdb(config, with_postgis=True)
 
